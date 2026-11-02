@@ -1,11 +1,13 @@
 import React from 'react';
-import { ArrowRight, BookOpen, Sparkles, Shield, GitCompare } from 'lucide-react';
+import { ArrowRight, BookOpen, Sparkles, Shield, GitCompare, User } from 'lucide-react';
 
 interface HeaderProps {
   currentPage: 'home' | 'scan' | 'passport' | 'compare';
   onNavigate: (page: 'home' | 'scan' | 'passport' | 'compare') => void;
   passportCount: number;
   onOpenPrivacy: () => void;
+  onOpenProfile: () => void;
+  hasProfile?: boolean;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -13,6 +15,8 @@ export const Header: React.FC<HeaderProps> = ({
   onNavigate,
   passportCount,
   onOpenPrivacy,
+  onOpenProfile,
+  hasProfile,
 }) => {
   return (
     <header className="h-20 px-[6%] flex items-center justify-between border-b border-[#eadbd7] bg-[#faf1ee]/90 sticky top-0 z-40 backdrop-blur-md">
@@ -25,7 +29,7 @@ export const Header: React.FC<HeaderProps> = ({
         <span className="text-[#c98f94] group-hover:text-[#8e3b5a] transition-colors">.</span>
       </button>
 
-      <nav className="flex items-center gap-6 sm:gap-8 text-xs font-medium text-[#806b70]">
+      <nav className="flex items-center gap-5 sm:gap-7 text-xs font-medium text-[#806b70]">
         <button
           onClick={() => onNavigate('home')}
           className={`transition-colors py-2 ${
@@ -79,6 +83,18 @@ export const Header: React.FC<HeaderProps> = ({
         )}
 
         <button
+          onClick={onOpenProfile}
+          className="flex items-center gap-1.5 text-[#806b70] hover:text-[#3a1f2e] transition-colors py-2"
+          title="Personal Skin Profile"
+        >
+          <User size={13} className={hasProfile ? 'text-[#8e3b5a]' : 'text-[#806b70]'} />
+          <span>Profile</span>
+          {hasProfile && (
+            <span className="w-1.5 h-1.5 rounded-full bg-[#8e3b5a]" />
+          )}
+        </button>
+
+        <button
           onClick={onOpenPrivacy}
           className="hidden md:flex items-center gap-1 text-[#9a7479] hover:text-[#3a1f2e] transition-colors py-2"
           title="Privacy & Data Control"
@@ -100,4 +116,3 @@ export const Header: React.FC<HeaderProps> = ({
     </header>
   );
 };
-

@@ -41,6 +41,7 @@ export interface SkinScanRecord {
   overall?: {
     skin_type?: string;
     skin_age?: number;
+    overall_score?: number;
   };
   userNotes?: string;
 }
@@ -69,11 +70,32 @@ export interface ComparisonConfidence {
 }
 
 export interface RoutineSuggestion {
+  id: string;
+  stepNumber: number;
   timeOfDay: 'AM' | 'PM' | 'BOTH';
   step: string;
   category: string;
   suggestion: string;
+  ingredientSpotlight: string;
   reason: string;
+  howToApply: string;
   triggeredByMetric: string;
+  isCustomizedForProfile?: boolean;
 }
 
+export type SkinType = 'oily' | 'dry' | 'combination' | 'normal' | 'sensitive' | 'unsure';
+
+export interface UserSkinProfile {
+  skinType: SkinType;
+  skinBehavior: string[];
+  primaryConcerns: string[];
+  currentRoutineSteps: string[];
+  sensitivities: string[];
+  notes?: string;
+  lastUpdated: string;
+}
+
+export interface DailyRoutineTrackerState {
+  date: string; // YYYY-MM-DD
+  completedStepIds: string[];
+}

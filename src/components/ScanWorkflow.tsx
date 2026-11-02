@@ -11,6 +11,7 @@ import {
   Sun,
   Maximize2,
   Focus,
+  CheckCircle2,
 } from 'lucide-react';
 import { analyzeImageQuality } from '../utils/imageQuality';
 import type { ScanQualityCheck, SkinScanRecord, YouCamMetric } from '../types/skin';
@@ -32,6 +33,7 @@ export const ScanWorkflow: React.FC<ScanWorkflowProps> = ({
   const [apiStepMessage, setApiStepMessage] = useState('');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [errorCode, setErrorCode] = useState<string | null>(null);
+  const [hasUserConsent, setHasUserConsent] = useState(true);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -91,7 +93,7 @@ export const ScanWorkflow: React.FC<ScanWorkflowProps> = ({
   };
 
   const handleRunAnalysis = async () => {
-    if (!previewUrl || !selectedFile) return;
+    if (!previewUrl || !selectedFile || !hasUserConsent) return;
 
     setIsCallingApi(true);
     setErrorMessage(null);
@@ -100,7 +102,7 @@ export const ScanWorkflow: React.FC<ScanWorkflowProps> = ({
     setApiStepMessage('Preparing secure image payload...');
     const t1 = setTimeout(() => setApiStepMessage('Staging image with YouCam S2S gateway...'), 1800);
     const t2 = setTimeout(() => setApiStepMessage('Executing AI Skin Diagnostics task...'), 4500);
-    const t3 = setTimeout(() => setApiStepMessage('Evaluating 16 dermal dimensions...'), 8500);
+    const t3 = setTimeout(() => setApiStepMessage('Evaluating 8 core skin health dimensions...'), 8500);
     const t4 = setTimeout(() => setApiStepMessage('Retrieving certified output parameters...'), 14000);
 
     try {
@@ -170,6 +172,38 @@ export const ScanWorkflow: React.FC<ScanWorkflowProps> = ({
         Choose a clear, recent face photo to begin. Your image undergoes an honest client-side
         Truth Check before being securely processed through YouCam AI.
       </p>
+
+      {/* Framing & Technical Guidance Strip */}
+      <div className="mb-6 p-4 bg-[#fbf2ef] border border-[#eadbd7] grid grid-cols-1 sm:grid-cols-4 gap-3 text-xs text-[#705c60]">
+        <div className="flex items-start gap-2">
+          <Focus size={16} className="text-[#8e3b5a] shrink-0 mt-0.5" />
+          <div>
+            <b className="text-[#3a1f2e] block">Tight Framing</b>
+            Face must occupy &gt;60% of frame width. Close portrait works best.
+          </div>
+        </div>
+        <div className="flex items-start gap-2">
+          <Sun size={16} className="text-[#8e3b5a] shrink-0 mt-0.5" />
+          <div>
+            <b className="text-[#3a1f2e] block">Natural Diffuse Light</b>
+            Even daytime light without overhead harsh shadows or flash glare.
+          </div>
+        </div>
+        <div className="flex items-start gap-2">
+          <Maximize2 size={16} className="text-[#8e3b5a] shrink-0 mt-0.5" />
+          <div>
+            <b className="text-[#3a1f2e] block">High Clarity</b>
+            Minimum 600×600 pixels. Sharp in-focus camera capture.
+          </div>
+        </div>
+        <div className="flex items-start gap-2">
+          <ShieldCheck size={16} className="text-[#8e3b5a] shrink-0 mt-0.5" />
+          <div>
+            <b className="text-[#3a1f2e] block">No Filters</b>
+            Bare skin without heavy makeup or digital beauty smoothing.
+          </div>
+        </div>
+      </div>
 
       <div className="columns">
         <section className="panel">
@@ -342,10 +376,26 @@ export const ScanWorkflow: React.FC<ScanWorkflowProps> = ({
                 <span>
                   {errorCode === 'YOUCAM_NOT_CONFIGURED'
                     ? 'Server API Key Required'
+                    : errorCode === 'FACE_TOO_SMALL'
+                    ? 'Framing Adjustment Needed: Face Too Small'
+                    : errorCode === 'NO_FACE_DETECTED'
+                    ? 'No Face Detected'
+                    : errorCode === 'IMAGE_RESOLUTION_TOO_LOW'
+                    ? 'Resolution Too Low'
                     : 'Analysis Could Not Proceed'}
                 </span>
               </div>
               <p className="text-xs leading-relaxed">{errorMessage}</p>
+
+              {errorCode === 'FACE_TOO_SMALL' && (
+                <div className="mt-2 p-2.5 bg-white border border-[#eed2cf] text-[11px] text-[#7a4253] space-y-1">
+                  <b>How to fix this:</b>
+                  <p>
+                    Crop this photo so your face fills nearly the entire frame from chin to forehead,
+                    or retake a selfie from ~30 cm distance. YouCam requires face width to exceed 60% of the total image width.
+                  </p>
+                </div>
+              )}
 
               {errorCode === 'YOUCAM_NOT_CONFIGURED' && (
                 <div className="mt-2 pt-2 border-t border-[#eed2cf] text-[11px] text-[#7a4253] space-y-1">
@@ -356,28 +406,32 @@ export const ScanWorkflow: React.FC<ScanWorkflowProps> = ({
                     YOUCAM_API_KEY=your_key_here<br />
                     YOUCAM_API_BASE_URL=https://yce-api-01.makeupar.com
                   </code>
-                  <p className="text-[10px]">
-                    Create a <span className="font-mono">.env.local</span> file in the project root or configure Vercel Environment Variables.
-                  </p>
                 </div>
               )}
             </div>
           )}
 
-          <div className="tips">
-            <b>For a more consistent personal record</b>
-            <p>
-              • Face the camera in soft, even natural daylight without direct overhead shadows.<br />
-              • Keep your expression relaxed and eyes open.<br />
-              • Avoid beauty filters, makeup that masks natural texture, or heavy digital smoothing.
-            </p>
+          {/* Explicit User Consent Checkbox */}
+          <div className="mt-5 p-3.5 bg-white border border-[#eadbd7] flex items-start gap-3">
+            <input
+              id="scan-consent"
+              type="checkbox"
+              checked={hasUserConsent}
+              onChange={(e) => setHasUserConsent(e.target.checked)}
+              className="mt-1 h-4 w-4 accent-[#8e3b5a] cursor-pointer"
+            />
+            <label htmlFor="scan-consent" className="text-xs text-[#684c55] cursor-pointer select-none leading-relaxed">
+              <span className="font-semibold text-[#3a1f2e]">Honest Consent &amp; Non-Medical Acknowledgment:</span>
+              <br />
+              I understand that LEKHA processes my image through Perfect Corp's YouCam Skin AI API strictly for cosmetic skin awareness. LEKHA does not store facial photographs permanently on servers, and results do not constitute medical diagnoses.
+            </label>
           </div>
 
-          <div className="pt-2">
+          <div className="pt-3">
             <button
               type="button"
               className="dark wide py-4 flex items-center justify-center gap-2 cursor-pointer font-medium tracking-wider uppercase text-xs disabled:opacity-50"
-              disabled={!previewUrl || isCallingApi || isAnalyzingImage}
+              disabled={!previewUrl || !hasUserConsent || isCallingApi || isAnalyzingImage}
               onClick={handleRunAnalysis}
             >
               {isCallingApi ? (
@@ -427,6 +481,13 @@ export const ScanWorkflow: React.FC<ScanWorkflowProps> = ({
               <br />
               LEKHA is an intelligent documentation journal for personal skincare awareness. It does
               not replace dermatology consultations.
+            </p>
+            <p>
+              <CheckCircle2 className="inline text-[#3e6837] mr-1.5" size={14} />
+              <b>Comparison Confidence</b>
+              <br />
+              Every scan records ambient lighting, camera sharpness, and timestamp to calculate an honest
+              confidence score whenever you compare progress over time.
             </p>
           </div>
         </aside>

@@ -72,6 +72,7 @@ export interface AnalysisSuccessResponse {
   overall?: {
     skin_type?: string;
     skin_age?: number;
+    overall_score?: number;
   };
   warnings?: string[];
 }
@@ -318,10 +319,16 @@ export async function executeYouCamSkinAnalysis(
 
       // Extract high-level metadata if present
       const skinTypeMetric = metrics.find((m) => m.type === 'skin_type');
+      const skinAgeMetric = metrics.find((m) => m.type === 'skin_age');
+      const skinAllMetric = metrics.find((m) => m.type === 'all');
+
       let overallSkinType: string | undefined;
       if (skinTypeMetric?.extra && typeof (skinTypeMetric.extra as any).skin_type === 'string') {
         overallSkinType = (skinTypeMetric.extra as any).skin_type;
       }
+
+      const overallSkinAge = skinAgeMetric ? Math.round(Number(skinAgeMetric.ui_score || skinAgeMetric.raw_score)) : undefined;
+      const overallScore = skinAllMetric ? Math.round(Number(skinAllMetric.ui_score || skinAllMetric.raw_score)) : undefined;
 
       return {
         success: true,
@@ -331,20 +338,51 @@ export async function executeYouCamSkinAnalysis(
         metrics,
         overall: {
           skin_type: overallSkinType,
+          skin_age: overallSkinAge,
+          overall_score: overallScore,
         },
       };
     }
 
     if (taskStatus === 'error') {
-      const errObj = pollData?.data?.error || {};
-      const errorMsg =
-        typeof errObj === 'string'
-          ? errObj
-          : errObj.message || errObj.error || 'YouCam Skin AI was unable to analyze this image.';
+      const rawError = pollData?.data?.error;
+      const rawErrorMessage = pollData?.data?.error_message;
+
+      let errorCode = 'TASK_EXECUTION_ERROR';
+      let errorMsg = 'YouCam Skin AI was unable to analyze this image.';
+
+      if (typeof rawError === 'string') {
+        errorCode = rawError;
+        errorMsg = rawErrorMessage || rawError;
+      } else if (rawError && typeof rawError === 'object') {
+        errorCode = rawError.error_code || rawError.code || errorCode;
+        errorMsg = rawError.message || rawError.error || rawErrorMessage || errorMsg;
+      } else if (rawErrorMessage) {
+        errorMsg = rawErrorMessage;
+      }
+
+      // Map known YouCam error codes to clear, actionable guidance
+      if (errorCode === 'error_src_face_too_small' || errorMsg.includes('face in the input image is too small')) {
+        errorMsg = 'The face in this photo is too small or distant. YouCam requires your face to occupy more than 60% of the image width. Please crop in closer or retake a closer portrait.';
+        errorCode = 'FACE_TOO_SMALL';
+      } else if (errorCode === 'error_no_face' || errorMsg.includes('no face')) {
+        errorMsg = 'No face was detected in this photo. Please make sure the photo contains a clear, unobstructed frontal view of your face.';
+        errorCode = 'NO_FACE_DETECTED';
+      } else if (errorCode === 'error_below_min_image_size') {
+        errorMsg = 'Image resolution is too low. Please upload a photo that is at least 600×600 pixels.';
+        errorCode = 'IMAGE_RESOLUTION_TOO_LOW';
+      } else if (errorCode === 'error_face_angle_too_large') {
+        errorMsg = 'Your face is angled too far away from the camera. Please look directly into the camera lens.';
+        errorCode = 'FACE_ANGLE_TOO_LARGE';
+      } else if (errorCode === 'CreditInsufficiency') {
+        errorMsg = 'YouCam API developer account has insufficient credits. Please recharge credits in the Perfect Corp console.';
+        errorCode = 'QUOTA_EXCEEDED';
+      }
+
       const error: any = new Error(errorMsg);
-      error.code = errObj.error_code || errObj.code || 'TASK_EXECUTION_ERROR';
+      error.code = errorCode;
       error.status = 422;
-      error.details = errObj;
+      error.details = { rawError, rawErrorMessage };
       throw error;
     }
 

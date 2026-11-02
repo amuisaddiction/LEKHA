@@ -6,6 +6,7 @@ import { ResultsView } from './components/ResultsView';
 import { PassportView } from './components/PassportView';
 import { ComparisonView } from './components/ComparisonView';
 import { SkincareRoutineModal } from './components/SkincareRoutineModal';
+import { SkinProfileModal } from './components/SkinProfileModal';
 import { PrivacyModal } from './components/PrivacyModal';
 import { Footer } from './components/Footer';
 import {
@@ -13,19 +14,41 @@ import {
   savePassportRecord,
   deletePassportRecord,
   clearAllPassportRecords,
+  loadUserProfile,
 } from './utils/storage';
-import type { SkinScanRecord } from './types/skin';
+import type { SkinScanRecord, UserSkinProfile } from './types/skin';
 
 export default function App() {
-  const getInitialPage = (): 'home' | 'scan' | 'results' | 'passport' | 'compare' => { if (typeof window === 'undefined') return 'home'; const hash = window.location.hash.replace('#', '').toLowerCase(); if (['scan', 'passport', 'compare'].includes(hash)) return hash as any; return 'home'; }; const [currentPage, setCurrentPage] = useState<'home' | 'scan' | 'results' | 'passport' | 'compare'>(getInitialPage);
+  const getInitialPage = (): 'home' | 'scan' | 'results' | 'passport' | 'compare' => {
+    if (typeof window === 'undefined') return 'home';
+    const hash = window.location.hash.replace('#', '').toLowerCase();
+    if (['scan', 'passport', 'compare'].includes(hash)) return hash as any;
+    return 'home';
+  };
+
+  const [currentPage, setCurrentPage] = useState<'home' | 'scan' | 'results' | 'passport' | 'compare'>(getInitialPage);
   const [currentResult, setCurrentResult] = useState<SkinScanRecord | null>(null);
   const [passportRecords, setPassportRecords] = useState<SkinScanRecord[]>([]);
+  const [userProfile, setUserProfile] = useState<UserSkinProfile | null>(null);
   const [isRoutineModalOpen, setIsRoutineModalOpen] = useState(false);
+  const [isProfileModalOpen, setIsProfileModalOpen] = useState(() => typeof window !== 'undefined' && window.location.hash === '#profile');
   const [isPrivacyModalOpen, setIsPrivacyModalOpen] = useState(() => typeof window !== 'undefined' && window.location.hash === '#privacy');
 
   useEffect(() => {
-    const loaded = loadPassportRecords();
-    setPassportRecords(loaded);
+    setPassportRecords(loadPassportRecords());
+    setUserProfile(loadUserProfile());
+
+    const handleHashChange = () => {
+      const hash = window.location.hash.replace('#', '').toLowerCase();
+      if (hash === 'privacy') setIsPrivacyModalOpen(true);
+      if (hash === 'profile') setIsProfileModalOpen(true);
+      if (['home', 'scan', 'passport', 'compare'].includes(hash)) {
+        setCurrentPage(hash === 'home' ? 'home' : (hash as any));
+      }
+    };
+
+    window.addEventListener('hashchange', handleHashChange);
+    return () => window.removeEventListener('hashchange', handleHashChange);
   }, []);
 
   const isCurrentResultSaved = Boolean(
@@ -72,7 +95,10 @@ export default function App() {
   };
 
   const handleNavigate = (page: 'home' | 'scan' | 'passport' | 'compare') => {
-    setCurrentPage(page); if (typeof window !== 'undefined') window.location.hash = page === 'home' ? '' : page;
+    setCurrentPage(page);
+    if (typeof window !== 'undefined') {
+      window.location.hash = page === 'home' ? '' : page;
+    }
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -84,6 +110,8 @@ export default function App() {
           onNavigate={handleNavigate}
           passportCount={passportRecords.length}
           onOpenPrivacy={() => setIsPrivacyModalOpen(true)}
+          onOpenProfile={() => setIsProfileModalOpen(true)}
+          hasProfile={Boolean(userProfile)}
         />
 
         {currentPage === 'home' && (
@@ -136,13 +164,26 @@ export default function App() {
         onNavigate={(p) => handleNavigate(p)}
       />
 
+      {/* Skincare Routine Guidance Modal */}
       {isRoutineModalOpen && currentResult && (
         <SkincareRoutineModal
           metrics={currentResult.metrics}
           onClose={() => setIsRoutineModalOpen(false)}
+          onOpenProfile={() => {
+            setIsRoutineModalOpen(false);
+            setIsProfileModalOpen(true);
+          }}
         />
       )}
 
+      {/* Skin Profile Questionnaire Modal */}
+      <SkinProfileModal
+        isOpen={isProfileModalOpen}
+        onClose={() => setIsProfileModalOpen(false)}
+        onProfileUpdated={(updated) => setUserProfile(updated)}
+      />
+
+      {/* Privacy & Data Management Modal */}
       {isPrivacyModalOpen && (
         <PrivacyModal
           onClose={() => setIsPrivacyModalOpen(false)}

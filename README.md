@@ -1,7 +1,7 @@
 # LEKHA — Skin Intelligence
 
 **Tagline:** *Your skin, documented. Your progress, understood.*  
-**Hackathon Submission:** Perfect Corp YouCam API Skin AI & eCommerce VTO Hackathon  
+**Hackathon Submission:** Perfect Corp YouCam API Skin AI & eCommerce VTO Hackathon (Devpost)  
 **Live Application:** [https://lekha-xi.vercel.app](https://lekha-xi.vercel.app)  
 **Public Repository:** [https://github.com/amuisaddiction/LEKHA](https://github.com/amuisaddiction/LEKHA)  
 **License:** MIT
@@ -16,9 +16,11 @@ Most modern skincare applications provide an instant face scan, output arbitrary
 - Pre-flight image quality validation (**Skin Truth Check**) before analysis.
 - Certified YouCam computer-vision metrics evaluated on an objective scale.
 - Clear distinction between consumer-calibrated **UI Scores** and continuous **Raw Model Outputs**.
+- Interactive **Personal Skin Profile** connecting your skin type, behaviors, and sensitivities to all recommendations.
 - A persistent, browser-local **Skin Passport** that documents your skin timeline.
 - Side-by-side historical comparison evaluated by a **Comparison Confidence** engine that accounts for lighting and camera differences.
-- Responsible, metric-derived AM/PM skincare considerations with transparent rationale.
+- Responsible, metric-derived **Interactive AM/PM Skincare Protocol** with daily progress tracking.
+- Zero cloud storage of user face images with 1-click complete local data purge.
 
 ---
 
@@ -43,15 +45,18 @@ Most modern skincare applications provide an instant face scan, output arbitrary
                                                                                       │
                                                                                       ▼
 [ Privacy Controls ] <── [ Skin Passport ] <── [ Scan Comparison ] <── [ Certified Results ]
+        │
+        └──> [ Personal Skin Profile ] ──> [ Interactive AM/PM Protocol Tracker ]
 ```
 
 1. **Capture & Pre-Flight Skin Truth Check:** Client-side canvas analysis measures ambient luminance, edge contrast (focus/sharpness), and pixel resolution before upload, ensuring the photo is suitable for AI processing.
 2. **Server-Side YouCam S2S Integration:** High-resolution image buffer is securely staged with YouCam's File API, binary uploaded to pre-signed S3 storage, and analyzed via the asynchronous Task API.
 3. **Certified Results Experience:** Displays verified metrics with clear categorization (Texture & Pores, Tone & Clarity, Hydration & Balance, Signs of Aging). Supports toggling visual detection mask overlays directly on the portrait.
-4. **Persistent Skin Passport:** Saves dated scan records, scores, timestamps, and thumbnails locally within the user's browser.
-5. **Scan Comparison & Comparison Confidence:** Select any two historical scans to inspect metric deltas. If lighting exposure or camera resolution differ significantly, the Comparison Confidence engine cautions the user that differences may stem from photography conditions.
-6. **Tailored Skincare Guidance:** Generates non-medical AM/PM skincare suggestions derived directly from the user's actual scores, explicitly noting which metric triggered each recommendation.
-7. **Privacy & Data Sovereignty:** Zero persistent cloud database storage of face images; 1-click complete local data purge.
+4. **Interactive Personal Skin Profile:** Guided intake capturing user skin type (Oily, Dry, Combination, Normal, Sensitive, Unsure), daily behaviors, primary concerns, and known ingredient sensitivities (alcohol, retinoids, fragrance).
+5. **Persistent Skin Passport:** Saves dated scan records, scores, timestamps, and thumbnails locally within the user's browser.
+6. **Scan Comparison & Comparison Confidence:** Select any two historical scans to inspect metric deltas. If lighting exposure or camera resolution differ significantly, the Comparison Confidence engine cautions the user that differences may stem from photography conditions.
+7. **Interactive AM/PM Skincare Protocol Tracker:** Checkable morning and evening steps with live daily completion progress bar, key active ingredient spotlights, and explicit links to triggering metrics and user profile traits.
+8. **Privacy & Data Sovereignty:** Zero persistent cloud database storage of face images; 1-click complete local data purge.
 
 ---
 
@@ -92,6 +97,7 @@ To optimize unit consumption and response speed, LEKHA defaults to **8 Core SD A
 - **Typography:** Fraunces (Editorial display serif) & DM Sans (Modern UI sans)
 - **Icons:** Lucide React
 - **Serverless API:** Node.js Serverless Function (`api/scan.ts`) with `@vercel/node`
+- **Testing:** Node.js Native Test Runner (`node --test`)
 - **Deployment Platform:** Vercel
 
 ---
@@ -130,14 +136,32 @@ npm run dev
 ```
 Open `http://localhost:5173`. The Vite development server includes a built-in proxy middleware for `/api/scan` that loads `.env.local` automatically.
 
-### 4. Build for Production
+### 4. Run Automated Tests
+```bash
+npm test
+```
+Executes the native test suite verifying metric mappings, comparison deltas, confidence algorithms, and date formatting.
+
+### 5. Build for Production
 ```bash
 npm run build
 ```
 
 ---
 
-## 7. Deployment Instructions (Vercel)
+## 7. Audit & Verification Documentation
+
+Comprehensive engineering reports have been prepared in the repository:
+- [`AUDIT_REPORT.md`](AUDIT_REPORT.md): Complete architecture and security audit, initial issues, root causes, and verification matrix.
+- [`API_STATUS.md`](API_STATUS.md): YouCam API endpoint status, live execution logs, real sample score outputs, and error normalization tables.
+- [`FEATURE_TEST_CHECKLIST.md`](FEATURE_TEST_CHECKLIST.md): 20-point feature acceptance test matrix with pass/fail statuses.
+- [`IMAGE_AUDIT.md`](IMAGE_AUDIT.md): Inventory of all 15 imagery assets with Unsplash photographer credits and licensing verification.
+- [`RULE_COMPLIANCE_REPORT.md`](RULE_COMPLIANCE_REPORT.md): 12-point Devpost & Perfect Corp hackathon rule compliance matrix.
+- [`CREDITS.md`](CREDITS.md): Full typography, icon, and photography attributions.
+
+---
+
+## 8. Deployment Instructions (Vercel)
 
 LEKHA is architected as a static Vite frontend with a serverless API boundary (`api/scan.ts`):
 
@@ -151,52 +175,12 @@ LEKHA is architected as a static Vite frontend with a serverless API boundary (`
 
 ---
 
-## 8. Privacy, Security & Disclaimers
+## 9. Privacy, Security & Disclaimers
 
 - **Zero Cloud Photo Retention:** User portrait photos are held transiently in serverless memory for the duration of the API call and immediately discarded.
 - **Local Browser Storage:** All saved Skin Passport records reside strictly inside the user's browser `localStorage`.
 - **Secret Isolation:** `YOUCAM_API_KEY` is kept strictly on the server and is never exposed to client-side bundles.
 - **Non-Medical Disclaimer:** LEKHA is a cosmetic documentation and personal awareness journal. It does not diagnose, treat, cure, or prevent any dermatological medical condition.
-
----
-
-## 9. Application Screenshots
-
-### 1. Editorial Hero & Landing Experience
-*Combines luxury beauty-tech editorial typography with warm Rose Ivory & Deep Plum palettes.*
-docs/screenshots/01-hero-landing.png
-
-### 2. The Approach & Longitudinal Methodology
-*Editorial portraiture and visual chronicle explaining how LEKHA evaluates authentic skin changes over time.*
-docs/screenshots/02-approach-and-portrait.png
-
-### 3. What We Observe (8 Macro Skin Concern Cards)
-*Macro photography and objective diagnostic explanations for Texture, Pores, Wrinkles, Acne, Redness, Pigment, Oiliness, and Moisture.*
-docs/screenshots/03-skin-concerns-macro-grid.png
-
-### 4. Skincare Rituals (AM / PM Editorial Guide)
-*Unbranded luxury product textures and ingredient rationales linked to YouCam diagnostic metrics.*
-docs/screenshots/04-skincare-rituals-am-pm.png
-
-### 5. Capture & Pre-Flight Skin Truth Check
-*Real-time canvas validation measuring lighting luminance, focus sharpness, and camera resolution.*
-docs/screenshots/05-scan-upload-workflow.png
-
-### 6. Persistent Skin Passport Ledger
-*Chronological personal skin history timeline with actual saved scan thumbnails in browser localStorage.*
-docs/screenshots/06-skin-passport-ledger.png
-
-### 7. Prominent Dual-Portrait Comparison Studio
-*Side-by-side high-resolution scan evaluation featuring the qualitative Comparison Confidence assessment.*
-docs/screenshots/07-scan-comparison-studio.png
-
-### 8. Privacy Controls & Local Data Purge
-*Transparent storage breakdown, zero cloud retention disclosure, and 1-click complete local data wipe.*
-docs/screenshots/08-privacy-controls-modal.png
-
-### 9. Mobile Responsive Experience
-*Flawless responsive behavior and aesthetic typography on modern mobile viewports.*
-docs/screenshots/09-mobile-landing-responsive.png
 
 ---
 

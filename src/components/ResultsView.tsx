@@ -142,6 +142,54 @@ export const ResultsView: React.FC<ResultsViewProps> = ({
         returned directly by the YouCam AI engine for this scan.
       </p>
 
+      {/* High-Level Diagnostic Summary */}
+      {(record.overall?.overall_score || record.overall?.skin_age || record.overall?.skin_type) && (
+        <div className="mb-6 p-4 bg-white border border-[#eadbd7] grid grid-cols-2 sm:grid-cols-4 gap-4 text-center">
+          {record.overall?.overall_score !== undefined && (
+            <div className="p-2 border-r border-[#eadbd7]">
+              <span className="text-[10px] uppercase tracking-wider text-[#9a7479] font-bold block">
+                Composite Score
+              </span>
+              <span className="font-serif text-3xl font-normal text-[#3a1f2e]">
+                {record.overall.overall_score}
+              </span>
+              <span className="text-[10px] text-[#806b70] block">/ 100 Skin Health</span>
+            </div>
+          )}
+          {record.overall?.skin_age !== undefined && (
+            <div className="p-2 border-r border-[#eadbd7]">
+              <span className="text-[10px] uppercase tracking-wider text-[#9a7479] font-bold block">
+                Estimated Skin Age
+              </span>
+              <span className="font-serif text-3xl font-normal text-[#8e3b5a]">
+                {record.overall.skin_age}
+              </span>
+              <span className="text-[10px] text-[#806b70] block">Years Biomarker</span>
+            </div>
+          )}
+          {record.overall?.skin_type && (
+            <div className="p-2 border-r border-[#eadbd7]">
+              <span className="text-[10px] uppercase tracking-wider text-[#9a7479] font-bold block">
+                Diagnostic Skin Type
+              </span>
+              <span className="font-serif text-xl font-normal text-[#3a1f2e] capitalize mt-1 block">
+                {record.overall.skin_type}
+              </span>
+              <span className="text-[10px] text-[#806b70] block">AI Classification</span>
+            </div>
+          )}
+          <div className="p-2">
+            <span className="text-[10px] uppercase tracking-wider text-[#9a7479] font-bold block">
+              Dermal Metrics
+            </span>
+            <span className="font-serif text-3xl font-normal text-[#416938]">
+              {record.metrics.length}
+            </span>
+            <span className="text-[10px] text-[#806b70] block">Dimensions Scanned</span>
+          </div>
+        </div>
+      )}
+
       {/* Honest Score Calibration Disclosure */}
       <div className="mb-8 p-4 bg-[#f8ede9] border border-[#eadbd7] flex items-start gap-3 text-xs leading-relaxed text-[#684c55]">
         <Info size={16} className="text-[#8e3b5a] shrink-0 mt-0.5" />
