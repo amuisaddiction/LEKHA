@@ -88,6 +88,6 @@ LEKHA helps users understand their skin through verified AI diagnostics and main
 
 ### Submission Links & Assets Checklist
 - [x] **Public GitHub Repository:** `https://github.com/amuisaddiction/LEKHA`
-- [ ] **Live Demo URL:** `https://lekha-skin.vercel.app` (or your assigned Vercel URL)
+- [x] **Live Demo URL:** https://lekha-xi.vercel.app
 - [ ] **Public Demo Video:** YouTube / Vimeo link
 - [ ] **Screenshots:** 7 application views attached in Devpost gallery

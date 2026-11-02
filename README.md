@@ -2,6 +2,8 @@
 
 **Tagline:** *Your skin, documented. Your progress, understood.*  
 **Hackathon Submission:** Perfect Corp YouCam API Skin AI & eCommerce VTO Hackathon  
+**Live Application:** [https://lekha-xi.vercel.app](https://lekha-xi.vercel.app)  
+**Public Repository:** [https://github.com/amuisaddiction/LEKHA](https://github.com/amuisaddiction/LEKHA)  
 **License:** MIT
 
 ---
