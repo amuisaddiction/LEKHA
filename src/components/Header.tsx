@@ -63,24 +63,29 @@ export const Header: React.FC<HeaderProps> = ({
         >
           <BookOpen size={13} />
           <span>Skin Passport</span>
-          <span className="ml-1 text-[10px] bg-[#f0ddda] text-[#8e3b5a] px-2 py-0.5 rounded-full font-semibold">
-            {passportCount}
-          </span>
+          {passportCount > 0 && (
+            <span className="ml-1 text-[10px] bg-[#f0ddda] text-[#8e3b5a] px-2 py-0.5 rounded-full font-semibold">
+              {passportCount}
+            </span>
+          )}
         </button>
 
-        {passportCount >= 2 && (
-          <button
-            onClick={() => onNavigate('compare')}
-            className={`transition-colors py-2 flex items-center gap-1.5 ${
-              currentPage === 'compare'
-                ? 'text-[#3a1f2e] font-semibold border-b border-[#3a1f2e]'
-                : 'hover:text-[#3a1f2e]'
-            }`}
-          >
-            <GitCompare size={13} />
-            <span>Compare</span>
-          </button>
-        )}
+        <button
+          onClick={() => onNavigate('compare')}
+          className={`transition-colors py-2 flex items-center gap-1.5 ${
+            currentPage === 'compare'
+              ? 'text-[#3a1f2e] font-semibold border-b border-[#3a1f2e]'
+              : 'hover:text-[#3a1f2e]'
+          }`}
+        >
+          <GitCompare size={13} />
+          <span>Compare</span>
+          {passportCount < 2 && (
+            <span className="text-[9px] font-mono text-[#8e3b5a] bg-[#fbf2ef] px-1.5 py-0.5 border border-[#eadbd7]">
+              Demo
+            </span>
+          )}
+        </button>
 
         <button
           onClick={onOpenProfile}

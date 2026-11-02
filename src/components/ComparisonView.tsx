@@ -1,13 +1,10 @@
 import React, { useState, useMemo } from 'react';
 import {
   ArrowLeft,
-  AlertTriangle,
-  CheckCircle2,
   TrendingUp,
   TrendingDown,
   Minus,
   Sparkles,
-  Info,
   ExternalLink,
 } from 'lucide-react';
 import type { SkinScanRecord } from '../types/skin';
@@ -19,31 +16,101 @@ interface ComparisonViewProps {
   onOpenRecord: (record: SkinScanRecord) => void;
 }
 
+// Sample comparison records for demonstration when user has < 2 scans
+const SAMPLE_BASELINE: SkinScanRecord = {
+  id: 'sample_baseline',
+  timestamp: '2026-10-01T10:00:00Z',
+  dateFormatted: 'Oct 1, 2026 · Baseline (Day 1)',
+  name: 'Baseline Capture (Sample)',
+  thumbnailUrl: 'https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?auto=format&fit=crop&w=700&q=80',
+  apiVersion: 'v2.1',
+  overall: {
+    skin_age: 30,
+    overall_score: 84,
+  },
+  qualityCheck: {
+    brightness: 55,
+    brightnessStatus: 'optimal',
+    sharpness: 80,
+    sharpnessStatus: 'sharp',
+    width: 1080,
+    height: 1440,
+    resolutionStatus: 'high',
+    isSuitableForScan: true,
+    notes: ['Direct diffuse daylight', 'Sharp camera focus'],
+  },
+  metrics: [
+    { type: 'texture', ui_score: 82, raw_score: 83.5 },
+    { type: 'pore', ui_score: 81, raw_score: 82.0 },
+    { type: 'moisture', ui_score: 76, raw_score: 75.3 },
+    { type: 'redness', ui_score: 78, raw_score: 76.9 },
+    { type: 'oiliness', ui_score: 92, raw_score: 93.1 },
+    { type: 'wrinkle', ui_score: 86, raw_score: 90.2 },
+    { type: 'age_spot', ui_score: 92, raw_score: 94.0 },
+    { type: 'acne', ui_score: 86, raw_score: 87.5 },
+  ],
+};
+
+const SAMPLE_CURRENT: SkinScanRecord = {
+  id: 'sample_current',
+  timestamp: '2026-10-28T10:00:00Z',
+  dateFormatted: 'Oct 28, 2026 · Follow-Up (Day 28)',
+  name: 'Follow-Up Capture (Sample)',
+  thumbnailUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=700&q=80',
+  apiVersion: 'v2.1',
+  overall: {
+    skin_age: 28,
+    overall_score: 89,
+  },
+  qualityCheck: {
+    brightness: 58,
+    brightnessStatus: 'optimal',
+    sharpness: 84,
+    sharpnessStatus: 'sharp',
+    width: 1080,
+    height: 1440,
+    resolutionStatus: 'high',
+    isSuitableForScan: true,
+    notes: ['Even ambient daylight', 'Consistent focal plane'],
+  },
+  metrics: [
+    { type: 'texture', ui_score: 88, raw_score: 91.2 },
+    { type: 'pore', ui_score: 87, raw_score: 89.8 },
+    { type: 'moisture', ui_score: 84, raw_score: 85.1 },
+    { type: 'redness', ui_score: 82, raw_score: 80.4 },
+    { type: 'oiliness', ui_score: 95, raw_score: 96.5 },
+    { type: 'wrinkle', ui_score: 89, raw_score: 93.0 },
+    { type: 'age_spot', ui_score: 94, raw_score: 97.2 },
+    { type: 'acne', ui_score: 90, raw_score: 92.8 },
+  ],
+};
+
 export const ComparisonView: React.FC<ComparisonViewProps> = ({
   records,
   onBackToPassport,
   onOpenRecord,
 }) => {
+  const isDemo = records.length < 2;
+
   const [baselineId, setBaselineId] = useState<string>(
-    records.length > 1 ? records[records.length - 1].id : records[0]?.id || ''
+    records.length >= 2 ? records[records.length - 1].id : SAMPLE_BASELINE.id
   );
   const [currentId, setCurrentId] = useState<string>(
-    records[0]?.id || ''
+    records.length >= 2 ? records[0].id : SAMPLE_CURRENT.id
   );
 
-  const baselineRecord = useMemo(
-    () => records.find((r) => r.id === baselineId),
-    [records, baselineId]
-  );
-  const currentRecord = useMemo(
-    () => records.find((r) => r.id === currentId),
-    [records, currentId]
-  );
+  const baselineRecord = useMemo(() => {
+    if (isDemo) return SAMPLE_BASELINE;
+    return records.find((r) => r.id === baselineId) || records[0];
+  }, [records, baselineId, isDemo]);
+
+  const currentRecord = useMemo(() => {
+    if (isDemo) return SAMPLE_CURRENT;
+    return records.find((r) => r.id === currentId) || records[0];
+  }, [records, currentId, isDemo]);
 
   const comparisonResult = useMemo(() => {
-    if (!baselineRecord || !currentRecord || baselineRecord.id === currentRecord.id) {
-      return null;
-    }
+    if (!baselineRecord || !currentRecord) return null;
     return compareSkinScans(baselineRecord, currentRecord);
   }, [baselineRecord, currentRecord]);
 
@@ -64,23 +131,44 @@ export const ComparisonView: React.FC<ComparisonViewProps> = ({
         </span>
       </div>
 
-      <p className="eyebrow">DIAGNOSTIC TIME GAP / SIDE-BY-SIDE INVENTORY</p>
+      <p className="eyebrow">DIAGNOSTIC TIME GAP / SIDE-BY-SIDE STUDIO</p>
       <h1 className="font-serif text-4xl sm:text-5xl md:text-6xl text-[#3a1f2e] m-0 mb-3">
         Skin <i>Comparison.</i>
       </h1>
-      <p className="sub max-w-2xl mb-8">
+      <p className="sub max-w-2xl mb-6">
         Observe how your skin's diagnostic parameters evolve across time. Contrast two dated
         photographs alongside an honest evaluation of camera, resolution, and lighting consistency.
       </p>
 
+      {/* Demonstration Banner when user has < 2 scans */}
+      {isDemo && (
+        <div className="mb-6 p-4 bg-[#fdf2ef] border-l-4 border-[#8e3b5a] text-[#5c2a3d] flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+          <div className="flex items-center gap-2">
+            <Sparkles size={16} className="text-[#8e3b5a] shrink-0" />
+            <div>
+              <b className="text-[#3a1f2e]">Sample Comparison Walkthrough:</b>
+              <span className="ml-1 text-[#7a4253]">
+                You have {records.length} saved scan{records.length === 1 ? '' : 's'}. Below is a curated sample comparing a Day 1 Baseline against Day 28 Follow-Up to demonstrate how LEKHA evaluates deltas and lighting confidence.
+              </span>
+            </div>
+          </div>
+          <button
+            onClick={onBackToPassport}
+            className="bg-[#8e3b5a] text-white px-3.5 py-1.5 text-[11px] uppercase tracking-wider whitespace-nowrap self-start sm:self-center"
+          >
+            Capture Real Scans
+          </button>
+        </div>
+      )}
+
       {/* Prominent Side-by-Side Dual Portrait Studio */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8 my-8">
         {/* Left Column: Baseline Capture */}
-        <div className="bg-[#fffaf7] p-5 border border-[#eadbd7] shadow-xs flex flex-col justify-between">
+        <div className="bg-[#fffaf7] p-6 border border-[#eadbd7] shadow-xs flex flex-col justify-between">
           <div className="space-y-3 mb-4">
             <div className="flex items-center justify-between border-b border-[#f0dedb] pb-2">
-              <span className="text-[10px] font-mono uppercase tracking-widest text-[#8e3b5a] font-semibold flex items-center gap-1">
-                <span className="w-1.5 h-1.5 rounded-full bg-[#8e3b5a]"></span>
+              <span className="text-[10px] font-mono uppercase tracking-widest text-[#8e3b5a] font-semibold flex items-center gap-1.5">
+                <span className="w-2 h-2 rounded-full bg-[#8e3b5a]"></span>
                 01 / BASELINE CAPTURE (EARLIER)
               </span>
               {baselineRecord && (
@@ -90,23 +178,25 @@ export const ComparisonView: React.FC<ComparisonViewProps> = ({
               )}
             </div>
 
-            <select
-              value={baselineId}
-              onChange={(e) => setBaselineId(e.target.value)}
-              className="w-full bg-[#fbf2ef] border border-[#d9b8b6] p-2.5 text-xs text-[#3a1f2e] font-medium outline-none focus:border-[#8e3b5a] font-mono"
-            >
-              {records.map((r) => (
-                <option key={r.id} value={r.id}>
-                  {r.dateFormatted} — {r.name}
-                </option>
-              ))}
-            </select>
+            {!isDemo && (
+              <select
+                value={baselineId}
+                onChange={(e) => setBaselineId(e.target.value)}
+                className="w-full bg-[#fbf2ef] border border-[#d9b8b6] p-2.5 text-xs text-[#3a1f2e] font-medium outline-none focus:border-[#8e3b5a] font-mono"
+              >
+                {records.map((r) => (
+                  <option key={r.id} value={r.id}>
+                    {r.dateFormatted} — {r.name}
+                  </option>
+                ))}
+              </select>
+            )}
           </div>
 
           {baselineRecord && (
             <div className="space-y-4">
               {/* Prominent High-Resolution Portrait Display */}
-              <div className="aspect-[3/4] max-h-[380px] w-full bg-[#f1e4e0] overflow-hidden border border-[#d9b8b6] relative shadow-inner">
+              <div className="aspect-[3/4] max-h-[420px] w-full bg-[#f1e4e0] overflow-hidden border border-[#d9b8b6] relative shadow-inner">
                 {baselineRecord.thumbnailUrl ? (
                   <img
                     src={baselineRecord.thumbnailUrl}
@@ -128,29 +218,32 @@ export const ComparisonView: React.FC<ComparisonViewProps> = ({
                   <h4 className="font-serif text-base text-[#3a1f2e] m-0">
                     {baselineRecord.name}
                   </h4>
-                  <span className="text-[10px] text-[#9a7479] font-mono">
-                    Engine {baselineRecord.apiVersion.toUpperCase()} · {baselineRecord.metrics.length} metrics
-                  </span>
+                  {baselineRecord.qualityCheck && (
+                    <span className="text-[11px] text-[#9a7479] font-mono block">
+                      Ambient Lux: {baselineRecord.qualityCheck.brightness}% · Sharpness: {baselineRecord.qualityCheck.sharpness}/100
+                    </span>
+                  )}
                 </div>
-
-                <button
-                  onClick={() => onOpenRecord(baselineRecord)}
-                  className="inline-flex items-center gap-1 text-[11px] font-mono text-[#8e3b5a] underline hover:text-[#3a1f2e]"
-                >
-                  <span>Inspect Scan</span>
-                  <ExternalLink size={11} />
-                </button>
+                {!isDemo && (
+                  <button
+                    onClick={() => onOpenRecord(baselineRecord)}
+                    className="text-xs text-[#8e3b5a] hover:underline inline-flex items-center gap-1 font-mono uppercase"
+                  >
+                    <span>View Record</span>
+                    <ExternalLink size={11} />
+                  </button>
+                )}
               </div>
             </div>
           )}
         </div>
 
-        {/* Right Column: Comparison Capture */}
-        <div className="bg-[#fffaf7] p-5 border border-[#eadbd7] shadow-xs flex flex-col justify-between">
+        {/* Right Column: Follow-Up / Current Capture */}
+        <div className="bg-[#fffaf7] p-6 border border-[#eadbd7] shadow-xs flex flex-col justify-between">
           <div className="space-y-3 mb-4">
             <div className="flex items-center justify-between border-b border-[#f0dedb] pb-2">
-              <span className="text-[10px] font-mono uppercase tracking-widest text-[#8e3b5a] font-semibold flex items-center gap-1">
-                <span className="w-1.5 h-1.5 rounded-full bg-[#8e3b5a]"></span>
+              <span className="text-[10px] font-mono uppercase tracking-widest text-[#416938] font-semibold flex items-center gap-1.5">
+                <span className="w-2 h-2 rounded-full bg-[#416938]"></span>
                 02 / COMPARISON CAPTURE (RECENT)
               </span>
               {currentRecord && (
@@ -160,23 +253,25 @@ export const ComparisonView: React.FC<ComparisonViewProps> = ({
               )}
             </div>
 
-            <select
-              value={currentId}
-              onChange={(e) => setCurrentId(e.target.value)}
-              className="w-full bg-[#fbf2ef] border border-[#d9b8b6] p-2.5 text-xs text-[#3a1f2e] font-medium outline-none focus:border-[#8e3b5a] font-mono"
-            >
-              {records.map((r) => (
-                <option key={r.id} value={r.id}>
-                  {r.dateFormatted} — {r.name}
-                </option>
-              ))}
-            </select>
+            {!isDemo && (
+              <select
+                value={currentId}
+                onChange={(e) => setCurrentId(e.target.value)}
+                className="w-full bg-[#fbf2ef] border border-[#d9b8b6] p-2.5 text-xs text-[#3a1f2e] font-medium outline-none focus:border-[#8e3b5a] font-mono"
+              >
+                {records.map((r) => (
+                  <option key={r.id} value={r.id}>
+                    {r.dateFormatted} — {r.name}
+                  </option>
+                ))}
+              </select>
+            )}
           </div>
 
           {currentRecord && (
             <div className="space-y-4">
               {/* Prominent High-Resolution Portrait Display */}
-              <div className="aspect-[3/4] max-h-[380px] w-full bg-[#f1e4e0] overflow-hidden border border-[#d9b8b6] relative shadow-inner">
+              <div className="aspect-[3/4] max-h-[420px] w-full bg-[#f1e4e0] overflow-hidden border border-[#d9b8b6] relative shadow-inner">
                 {currentRecord.thumbnailUrl ? (
                   <img
                     src={currentRecord.thumbnailUrl}
@@ -188,8 +283,8 @@ export const ComparisonView: React.FC<ComparisonViewProps> = ({
                     L.
                   </div>
                 )}
-                <div className="absolute bottom-2 left-2 bg-[#3a1f2e]/85 text-white font-mono text-[9px] uppercase px-2 py-1">
-                  Current · {currentRecord.dateFormatted}
+                <div className="absolute bottom-2 left-2 bg-[#416938]/85 text-white font-mono text-[9px] uppercase px-2 py-1">
+                  Follow-up · {currentRecord.dateFormatted}
                 </div>
               </div>
 
@@ -198,197 +293,154 @@ export const ComparisonView: React.FC<ComparisonViewProps> = ({
                   <h4 className="font-serif text-base text-[#3a1f2e] m-0">
                     {currentRecord.name}
                   </h4>
-                  <span className="text-[10px] text-[#9a7479] font-mono">
-                    Engine {currentRecord.apiVersion.toUpperCase()} · {currentRecord.metrics.length} metrics
-                  </span>
+                  {currentRecord.qualityCheck && (
+                    <span className="text-[11px] text-[#9a7479] font-mono block">
+                      Ambient Lux: {currentRecord.qualityCheck.brightness}% · Sharpness: {currentRecord.qualityCheck.sharpness}/100
+                    </span>
+                  )}
                 </div>
-
-                <button
-                  onClick={() => onOpenRecord(currentRecord)}
-                  className="inline-flex items-center gap-1 text-[11px] font-mono text-[#8e3b5a] underline hover:text-[#3a1f2e]"
-                >
-                  <span>Inspect Scan</span>
-                  <ExternalLink size={11} />
-                </button>
+                {!isDemo && (
+                  <button
+                    onClick={() => onOpenRecord(currentRecord)}
+                    className="text-xs text-[#8e3b5a] hover:underline inline-flex items-center gap-1 font-mono uppercase"
+                  >
+                    <span>View Record</span>
+                    <ExternalLink size={11} />
+                  </button>
+                )}
               </div>
             </div>
           )}
         </div>
       </div>
 
-      {baselineId === currentId ? (
-        <div className="p-10 text-center bg-[#fdf8f5] border border-[#eadbd7] text-xs text-[#806b70] space-y-2">
-          <p className="font-serif text-lg text-[#3a1f2e] m-0">Same scan selected</p>
-          <p className="m-0">Please select two different scans above to evaluate changes over time.</p>
-        </div>
-      ) : !comparisonResult ? (
-        <div className="p-10 text-center bg-[#fdf8f5] border border-[#eadbd7] text-xs text-[#806b70]">
-          Unable to compare the selected records. Ensure both scans contain valid metric arrays.
-        </div>
-      ) : (
-        <div className="space-y-8 mt-6">
-          {/* Comparison Confidence Card */}
-          <div className="bg-[#fcf5f3] p-6 border border-[#eadbd7] space-y-4 shadow-xs">
-            <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#f0dedb] pb-3">
-              <div className="flex items-center gap-2">
-                <Sparkles size={16} className="text-[#8e3b5a]" />
-                <h3 className="font-serif text-lg text-[#3a1f2e] m-0">
-                  Comparison Confidence Assessment
-                </h3>
-              </div>
-
-              <div
-                className={`text-[11px] font-mono uppercase tracking-wider px-3.5 py-1.5 flex items-center gap-1.5 border ${
-                  comparisonResult.confidence.overallConfidence === 'high'
-                    ? 'bg-[#e2ede0] text-[#34582f] border-[#c2ddbf]'
-                    : comparisonResult.confidence.overallConfidence === 'moderate'
-                    ? 'bg-[#fff0db] text-[#8c5d1d] border-[#f2d8b1]'
-                    : 'bg-[#fbe4e2] text-[#8e3b5a] border-[#e8c0bd]'
-                }`}
-              >
-                {comparisonResult.confidence.overallConfidence === 'high' && (
-                  <CheckCircle2 size={13} />
-                )}
-                {comparisonResult.confidence.overallConfidence === 'moderate' && (
-                  <AlertTriangle size={13} />
-                )}
-                {comparisonResult.confidence.overallConfidence === 'cautious' && (
-                  <AlertTriangle size={13} />
-                )}
-                <span>
-                  {comparisonResult.confidence.overallConfidence === 'high'
-                    ? 'High Comparison Confidence'
-                    : comparisonResult.confidence.overallConfidence === 'moderate'
-                    ? 'Moderate Consistency'
-                    : 'Cautious Interpretation Advised'}
-                </span>
-              </div>
+      {/* Comparison Confidence Evaluation Card */}
+      {comparisonResult && (
+        <div className="my-8 bg-[#fdf8f6] border border-[#d9b8b6] p-6 space-y-4">
+          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#eedbd7] pb-3">
+            <div className="flex items-center gap-2">
+              <Sparkles size={16} className="text-[#8e3b5a]" />
+              <b className="font-serif text-lg text-[#3a1f2e]">
+                Comparison Confidence Rating
+              </b>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
-              <div className="bg-white p-3.5 border border-[#f0ddda]">
-                <span className="text-[10px] font-mono uppercase text-[#9a7479] block">
-                  Lighting Match
-                </span>
-                <b
-                  className={`block mt-1 text-sm font-serif ${
-                    comparisonResult.confidence.factors.lightingMatch === 'consistent'
-                      ? 'text-[#34582f]'
-                      : 'text-[#8e3b5a]'
-                  }`}
-                >
-                  {comparisonResult.confidence.factors.lightingMatch === 'consistent'
-                    ? 'Even Exposure Match'
-                    : 'Divergent Exposure'}
-                </b>
-              </div>
-
-              <div className="bg-white p-3.5 border border-[#f0ddda]">
-                <span className="text-[10px] font-mono uppercase text-[#9a7479] block">
-                  Resolution Match
-                </span>
-                <b
-                  className={`block mt-1 text-sm font-serif ${
-                    comparisonResult.confidence.factors.resolutionMatch === 'consistent'
-                      ? 'text-[#34582f]'
-                      : 'text-[#8e3b5a]'
-                  }`}
-                >
-                  {comparisonResult.confidence.factors.resolutionMatch === 'consistent'
-                    ? 'Consistent Scale'
-                    : 'Resolution Variance'}
-                </b>
-              </div>
-
-              <div className="bg-white p-3.5 border border-[#f0ddda]">
-                <span className="text-[10px] font-mono uppercase text-[#9a7479] block">
-                  Time Elapsed
-                </span>
-                <b className="block mt-1 text-sm font-serif text-[#3a1f2e]">
-                  {comparisonResult.confidence.factors.timeGapDays === 0
-                    ? 'Same day capture'
-                    : `${comparisonResult.confidence.factors.timeGapDays} days apart`}
-                </b>
-              </div>
-            </div>
-
-            {comparisonResult.confidence.caveats.length > 0 && (
-              <div className="pt-3 border-t border-[#f0ddda] space-y-1.5 text-xs text-[#705c60]">
-                {comparisonResult.confidence.caveats.map((caveat, idx) => (
-                  <p key={idx} className="flex items-start gap-2 leading-relaxed m-0">
-                    <Info size={13} className="text-[#c98f94] shrink-0 mt-0.5" />
-                    <span>{caveat}</span>
-                  </p>
-                ))}
-              </div>
-            )}
+            <span
+              className={`text-xs uppercase font-bold tracking-wider px-3 py-1 rounded-full ${
+                comparisonResult.confidence.overallConfidence === 'high'
+                  ? 'bg-[#e2ede0] text-[#34582f] border border-[#bcd6b8]'
+                  : comparisonResult.confidence.overallConfidence === 'moderate'
+                  ? 'bg-[#fdf3e2] text-[#825c1d] border border-[#ecd09d]'
+                  : 'bg-[#f7dedc] text-[#8e3b5a] border border-[#e5a0aa]'
+              }`}
+            >
+              {comparisonResult.confidence.overallConfidence === 'high'
+                ? 'High Scientific Confidence'
+                : comparisonResult.confidence.overallConfidence === 'moderate'
+                ? 'Moderate Consistency'
+                : 'Interpret with Caution'}
+            </span>
           </div>
 
-          {/* Diagnostic Metric Variations Table */}
-          <div className="bg-[#fffaf7] border border-[#eadbd7] overflow-x-auto shadow-xs">
-            <div className="p-5 border-b border-[#eadbd7] flex flex-wrap items-center justify-between gap-3">
-              <h3 className="font-serif text-xl text-[#3a1f2e] m-0">
-                Diagnostic Metric Variations
-              </h3>
-              <span className="text-[11px] font-mono text-[#9a7479]">
-                BASELINE: {comparisonResult.baselineDate} → CURRENT: {comparisonResult.currentDate}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+            <div className="bg-white/80 p-3 border border-[#eedbd7]">
+              <span className="text-[10px] text-[#9a7479] uppercase block font-mono">
+                Lighting Match
               </span>
+              <b className="text-[#3a1f2e] capitalize block mt-0.5">
+                {comparisonResult.confidence.factors.lightingMatch}
+              </b>
             </div>
+            <div className="bg-white/80 p-3 border border-[#eedbd7]">
+              <span className="text-[10px] text-[#9a7479] uppercase block font-mono">
+                Resolution Match
+              </span>
+              <b className="text-[#3a1f2e] capitalize block mt-0.5">
+                {comparisonResult.confidence.factors.resolutionMatch}
+              </b>
+            </div>
+            <div className="bg-white/80 p-3 border border-[#eedbd7]">
+              <span className="text-[10px] text-[#9a7479] uppercase block font-mono">
+                Time Interval
+              </span>
+              <b className="text-[#3a1f2e] block mt-0.5">
+                {comparisonResult.confidence.factors.timeGapDays} Days Apart
+              </b>
+            </div>
+          </div>
 
-            <table className="w-full text-left text-xs border-collapse">
-              <thead>
-                <tr className="bg-[#f8ede9] border-b border-[#eadbd7] text-[10px] font-mono uppercase tracking-wider text-[#9a7479]">
-                  <th className="py-3 px-4">Metric Dimension</th>
-                  <th className="py-3 px-4 text-center">Baseline UI</th>
-                  <th className="py-3 px-4 text-center">Current UI</th>
-                  <th className="py-3 px-4 text-center">UI Shift</th>
-                  <th className="py-3 px-4 text-center">Raw Shift</th>
-                  <th className="py-3 px-4">Context &amp; Scientific Interpretation</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-[#eadbd7]">
-                {comparisonResult.deltas.map((d) => (
-                  <tr key={d.type} className="hover:bg-[#fbf2ef]/70 transition-colors">
-                    <td className="py-4 px-4 font-serif text-sm text-[#3a1f2e] font-medium">
-                      {d.label}
-                    </td>
+          {comparisonResult.confidence.caveats.length > 0 && (
+            <div className="text-[11px] text-[#6d4b55] space-y-1.5 pt-2 border-t border-[#eedbd7]">
+              {comparisonResult.confidence.caveats.map((c, i) => (
+                <p key={i} className="flex items-start gap-1.5 leading-relaxed m-0">
+                  <span className="text-[#8e3b5a] font-bold">•</span>
+                  <span>{c}</span>
+                </p>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
 
-                    <td className="py-4 px-4 text-center font-mono text-xs text-[#806b70]">
-                      {d.baselineUiScore}
-                    </td>
+      {/* Metric Deltas Table */}
+      {comparisonResult && (
+        <div className="space-y-4 my-8">
+          <div className="flex items-center justify-between border-b border-[#eadbd7] pb-3">
+            <div>
+              <p className="eyebrow mb-1">METRIC-BY-METRIC VARIATION</p>
+              <h3 className="font-serif text-2xl text-[#3a1f2e] m-0">
+                Observed Parameter Shifts
+              </h3>
+            </div>
+            <span className="text-xs text-[#806b70]">
+              Baseline $\rightarrow$ Current
+            </span>
+          </div>
 
-                    <td className="py-4 px-4 text-center font-mono text-xs font-semibold text-[#3a1f2e]">
-                      {d.currentUiScore}
-                    </td>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {comparisonResult.deltas.map((d) => (
+              <div
+                key={d.type}
+                className="bg-[#fffaf7] p-4 border border-[#eadbd7] space-y-2 hover:border-[#c98f94] transition-colors"
+              >
+                <div className="flex items-center justify-between text-xs">
+                  <span className="font-semibold text-[#3a1f2e]">{d.label}</span>
+                  <span
+                    className={`font-mono text-[10px] font-bold px-1.5 py-0.5 rounded flex items-center gap-0.5 ${
+                      d.trend === 'improved'
+                        ? 'bg-[#e2ede0] text-[#34582f]'
+                        : d.trend === 'declined'
+                        ? 'bg-[#f7dedc] text-[#8e3b5a]'
+                        : 'bg-[#f0dfdc] text-[#705c60]'
+                    }`}
+                  >
+                    {d.trend === 'improved' && <TrendingUp size={11} />}
+                    {d.trend === 'declined' && <TrendingDown size={11} />}
+                    {d.trend === 'unchanged' && <Minus size={11} />}
+                    <span>{d.uiDelta > 0 ? `+${d.uiDelta}` : d.uiDelta}</span>
+                  </span>
+                </div>
 
-                    <td className="py-4 px-4 text-center">
-                      <span
-                        className={`inline-flex items-center gap-1 font-mono font-bold text-xs px-2.5 py-0.5 border ${
-                          d.trend === 'improved'
-                            ? 'bg-[#e2ede0] text-[#34582f] border-[#c2ddbf]'
-                            : d.trend === 'declined'
-                            ? 'bg-[#fbe4e2] text-[#8e3b5a] border-[#e8c0bd]'
-                            : 'bg-[#f2e7e4] text-[#856f72] border-[#e2d0cd]'
-                        }`}
-                      >
-                        {d.trend === 'improved' && <TrendingUp size={12} />}
-                        {d.trend === 'declined' && <TrendingDown size={12} />}
-                        {d.trend === 'unchanged' && <Minus size={12} />}
-                        <span>{d.uiDelta > 0 ? `+${d.uiDelta}` : d.uiDelta}</span>
-                      </span>
-                    </td>
+                <div className="flex items-baseline justify-between text-xs text-[#705c60]">
+                  <span>
+                    Baseline: <b>{d.baselineUiScore}</b>
+                  </span>
+                  <span>$\rightarrow$</span>
+                  <span>
+                    Current: <b>{d.currentUiScore}</b>
+                  </span>
+                </div>
 
-                    <td className="py-4 px-4 text-center font-mono text-[11px] text-[#786165]">
-                      {d.rawDelta > 0 ? `+${d.rawDelta}` : d.rawDelta}
-                    </td>
+                <div className="text-[10px] text-[#9c8587] font-mono border-t border-[#f4e8e5] pt-1.5 flex items-center justify-between">
+                  <span>Raw float shift:</span>
+                  <b>{d.rawDelta > 0 ? `+${d.rawDelta}` : d.rawDelta}</b>
+                </div>
 
-                    <td className="py-4 px-4 text-[#705c60] text-[11px] leading-relaxed max-w-sm">
-                      {d.explanation}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+                <p className="text-[11px] text-[#6d4b55] leading-snug pt-1 m-0">
+                  {d.explanation}
+                </p>
+              </div>
+            ))}
           </div>
         </div>
       )}
