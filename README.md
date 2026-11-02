@@ -162,33 +162,41 @@ LEKHA is architected as a static Vite frontend with a serverless API boundary (`
 
 ## 9. Application Screenshots
 
-### 1. Editorial Landing Page & Approach
-*Combines modern Vogue-inspired typography with warm Rose Ivory & Deep Plum aesthetics.*
-`assets/screenshots/01-landing-page.png`
+### 1. Editorial Hero & Landing Experience
+*Combines luxury beauty-tech editorial typography with warm Rose Ivory & Deep Plum palettes.*
+docs/screenshots/01-hero-landing.png
 
-### 2. Capture & Pre-Flight Skin Truth Check
+### 2. The Approach & Longitudinal Methodology
+*Editorial portraiture and visual chronicle explaining how LEKHA evaluates authentic skin changes over time.*
+docs/screenshots/02-approach-and-portrait.png
+
+### 3. What We Observe (8 Macro Skin Concern Cards)
+*Macro photography and objective diagnostic explanations for Texture, Pores, Wrinkles, Acne, Redness, Pigment, Oiliness, and Moisture.*
+docs/screenshots/03-skin-concerns-macro-grid.png
+
+### 4. Skincare Rituals (AM / PM Editorial Guide)
+*Unbranded luxury product textures and ingredient rationales linked to YouCam diagnostic metrics.*
+docs/screenshots/04-skincare-rituals-am-pm.png
+
+### 5. Capture & Pre-Flight Skin Truth Check
 *Real-time canvas validation measuring lighting luminance, focus sharpness, and camera resolution.*
-`assets/screenshots/02-skin-truth-check.png`
+docs/screenshots/05-scan-upload-workflow.png
 
-### 3. Certified YouCam Skin AI Results
-*Actual YouCam diagnostic scores with UI Score vs Raw Score transparency and detection mask overlay controls.*
-`assets/screenshots/03-scan-results.png`
+### 6. Persistent Skin Passport Ledger
+*Chronological personal skin history timeline with actual saved scan thumbnails in browser localStorage.*
+docs/screenshots/06-skin-passport-ledger.png
 
-### 4. Persistent Skin Passport
-*Chronological personal skin history timeline saved in local browser storage.*
-`assets/screenshots/04-skin-passport.png`
+### 7. Prominent Dual-Portrait Comparison Studio
+*Side-by-side high-resolution scan evaluation featuring the qualitative Comparison Confidence assessment.*
+docs/screenshots/07-scan-comparison-studio.png
 
-### 5. Skin Comparison & Comparison Confidence
-*Side-by-side scan evaluation featuring the qualitative Comparison Confidence assessment.*
-`assets/screenshots/05-scan-comparison.png`
+### 8. Privacy Controls & Local Data Purge
+*Transparent storage breakdown, zero cloud retention disclosure, and 1-click complete local data wipe.*
+docs/screenshots/08-privacy-controls-modal.png
 
-### 6. Derived Skincare Routine Considerations
-*Contextual AM/PM ingredient recommendations explicitly linked to detected metrics.*
-`assets/screenshots/06-skincare-routine.png`
-
-### 7. Privacy Controls & Local Data Purge
-*Transparent storage breakdown and 1-click complete local data wipe.*
-`assets/screenshots/07-privacy-controls.png`
+### 9. Mobile Responsive Experience
+*Flawless responsive behavior and aesthetic typography on modern mobile viewports.*
+docs/screenshots/09-mobile-landing-responsive.png
 
 ---
 
