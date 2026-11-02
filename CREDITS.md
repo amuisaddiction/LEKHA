@@ -1,0 +1,1 @@
+# Credits\n- Typography: Fraunces and DM Sans via Google Fonts.\n- Icons: Lucide React.\n- No external model photography is bundled.\n
