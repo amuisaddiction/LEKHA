@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import {
   ArrowLeft,
   BookmarkCheck,
@@ -7,6 +7,7 @@ import {
   Info,
   Layers,
   ChevronRight,
+  AlertCircle,
 } from 'lucide-react';
 import type { SkinScanRecord, YouCamMetric } from '../types/skin';
 import { getMetricDefinition } from '../utils/metricDefinitions';
@@ -30,6 +31,38 @@ export const ResultsView: React.FC<ResultsViewProps> = ({
 }) => {
   const [activeCategory, setActiveCategory] = useState<CategoryFilter>('all');
   const [selectedMaskMetric, setSelectedMaskMetric] = useState<YouCamMetric | null>(null);
+  const [maskLoadError, setMaskLoadError] = useState(false);
+
+  // Group metrics and only show filter tabs for categories present in response
+  const categoryCounts = useMemo(() => {
+    const counts: Record<string, number> = {
+      all: record.metrics.length,
+      texture: 0,
+      tone: 0,
+      hydration: 0,
+      aging: 0,
+      eyes: 0,
+    };
+    for (const m of record.metrics) {
+      const def = getMetricDefinition(m.type);
+      if (counts[def.category] !== undefined) {
+        counts[def.category]++;
+      }
+    }
+    return counts;
+  }, [record.metrics]);
+
+  const availableTabs = useMemo(() => {
+    const allTabOptions: { id: CategoryFilter; label: string }[] = [
+      { id: 'all', label: `All Metrics (${record.metrics.length})` },
+      { id: 'texture', label: `Texture & Pores (${categoryCounts.texture})` },
+      { id: 'tone', label: `Tone & Clarity (${categoryCounts.tone})` },
+      { id: 'hydration', label: `Hydration & Balance (${categoryCounts.hydration})` },
+      { id: 'aging', label: `Signs of Aging (${categoryCounts.aging})` },
+      { id: 'eyes', label: `Eye Contours (${categoryCounts.eyes})` },
+    ];
+    return allTabOptions.filter((t) => t.id === 'all' || (categoryCounts[t.id] && categoryCounts[t.id] > 0));
+  }, [record.metrics.length, categoryCounts]);
 
   const filteredMetrics = record.metrics.filter((m) => {
     if (activeCategory === 'all') return true;
@@ -49,8 +82,14 @@ export const ResultsView: React.FC<ResultsViewProps> = ({
     return 'bg-[#8e3b5a]';
   };
 
+  const handleSelectMask = (metric: YouCamMetric | null) => {
+    setMaskLoadError(false);
+    setSelectedMaskMetric(metric);
+  };
+
   return (
     <main className="workspace">
+      {/* Top Breadcrumb & Actions */}
       <div className="flex flex-wrap items-center justify-between gap-4 mb-8 pb-4 border-b border-[#eadbd7]">
         <button
           onClick={onNewScan}
@@ -93,7 +132,7 @@ export const ResultsView: React.FC<ResultsViewProps> = ({
       </div>
 
       <p className="eyebrow">
-        AUTHENTIC YOUMCAM SKIN AI INTELLIGENCE · ENGINE {record.apiVersion.toUpperCase()}
+        AUTHENTIC YOUCAM SKIN AI INTELLIGENCE · ENGINE {record.apiVersion.toUpperCase()}
       </p>
       <h1>
         Your skin, <i>documented.</i>
@@ -103,6 +142,7 @@ export const ResultsView: React.FC<ResultsViewProps> = ({
         returned directly by the YouCam AI engine for this scan.
       </p>
 
+      {/* Honest Score Calibration Disclosure */}
       <div className="mb-8 p-4 bg-[#f8ede9] border border-[#eadbd7] flex items-start gap-3 text-xs leading-relaxed text-[#684c55]">
         <Info size={16} className="text-[#8e3b5a] shrink-0 mt-0.5" />
         <div>
@@ -116,7 +156,9 @@ export const ResultsView: React.FC<ResultsViewProps> = ({
         </div>
       </div>
 
+      {/* Main Grid: Face & Overlays on Left, Concerns on Right */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+        {/* Left Column: Image with Mask Layering (lg:col-span-4) */}
         <div className="lg:col-span-4 bg-[#fffaf7] p-5 border border-[#eadbd7] space-y-4 sticky top-24">
           <div className="flex items-center justify-between text-[11px] font-mono uppercase tracking-wider text-[#9a7479]">
             <span>Captured Portrait</span>
@@ -130,21 +172,31 @@ export const ResultsView: React.FC<ResultsViewProps> = ({
               className="w-full h-full object-cover"
             />
 
-            {selectedMaskMetric?.mask_urls && selectedMaskMetric.mask_urls.length > 0 && (
+            {/* Visual Detection Mask Overlay (if active and valid) */}
+            {selectedMaskMetric?.mask_urls && selectedMaskMetric.mask_urls.length > 0 && !maskLoadError && (
               <img
                 src={selectedMaskMetric.mask_urls[0]}
                 alt={`${selectedMaskMetric.type} mask overlay`}
+                onError={() => setMaskLoadError(true)}
                 className="absolute inset-0 w-full h-full object-cover mix-blend-multiply opacity-85 transition-opacity"
               />
             )}
 
-            {selectedMaskMetric && (
+            {selectedMaskMetric && !maskLoadError && (
               <div className="absolute top-2 left-2 bg-[#3a1f2e]/90 text-white text-[10px] px-2 py-1 rounded">
                 Overlay: {getMetricDefinition(selectedMaskMetric.type).label}
               </div>
             )}
+
+            {maskLoadError && selectedMaskMetric && (
+              <div className="absolute top-2 left-2 right-2 bg-[#8e3b5a]/90 text-white text-[10px] p-1.5 rounded flex items-center gap-1">
+                <AlertCircle size={12} />
+                <span>Mask asset unavailable or expired.</span>
+              </div>
+            )}
           </div>
 
+          {/* Mask Controls */}
           {record.metrics.some((m) => m.mask_urls && m.mask_urls.length > 0) && (
             <div className="space-y-1.5 pt-2 border-t border-[#eadbd7]">
               <div className="flex items-center justify-between text-xs text-[#806b70]">
@@ -154,7 +206,7 @@ export const ResultsView: React.FC<ResultsViewProps> = ({
                 </span>
                 {selectedMaskMetric && (
                   <button
-                    onClick={() => setSelectedMaskMetric(null)}
+                    onClick={() => handleSelectMask(null)}
                     className="text-[11px] text-[#8e3b5a] hover:underline"
                   >
                     Clear Overlay
@@ -170,7 +222,7 @@ export const ResultsView: React.FC<ResultsViewProps> = ({
                     return (
                       <button
                         key={m.type}
-                        onClick={() => setSelectedMaskMetric(isSelected ? null : m)}
+                        onClick={() => handleSelectMask(isSelected ? null : m)}
                         className={`text-[10px] px-2 py-1 transition-all ${
                           isSelected
                             ? 'bg-[#3a1f2e] text-white font-medium'
@@ -185,6 +237,7 @@ export const ResultsView: React.FC<ResultsViewProps> = ({
             </div>
           )}
 
+          {/* Quality Conditions Recorded */}
           {record.qualityCheck && (
             <div className="pt-3 border-t border-[#eadbd7] text-[11px] text-[#887477] space-y-1">
               <span className="block font-medium text-[#3a1f2e]">Capture Condition Meta:</span>
@@ -197,19 +250,14 @@ export const ResultsView: React.FC<ResultsViewProps> = ({
           )}
         </div>
 
+        {/* Right Column: Concerns Breakdown (lg:col-span-8) */}
         <div className="lg:col-span-8 space-y-6">
+          {/* Category Filter Pills (Dynamically shown based on available data) */}
           <div className="flex flex-wrap gap-2 pb-2 border-b border-[#eadbd7]">
-            {[
-              { id: 'all', label: `All Dimensions (${record.metrics.length})` },
-              { id: 'texture', label: 'Texture & Pores' },
-              { id: 'tone', label: 'Tone & Clarity' },
-              { id: 'hydration', label: 'Hydration & Balance' },
-              { id: 'aging', label: 'Signs of Aging' },
-              { id: 'eyes', label: 'Eye Contours' },
-            ].map((tab) => (
+            {availableTabs.map((tab) => (
               <button
                 key={tab.id}
-                onClick={() => setActiveCategory(tab.id as CategoryFilter)}
+                onClick={() => setActiveCategory(tab.id)}
                 className={`text-xs px-3.5 py-2 transition-all ${
                   activeCategory === tab.id
                     ? 'bg-[#3a1f2e] text-[#fff8f5] font-semibold'
@@ -221,6 +269,7 @@ export const ResultsView: React.FC<ResultsViewProps> = ({
             ))}
           </div>
 
+          {/* Metric Cards List */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {filteredMetrics.map((metric) => {
               const def = getMetricDefinition(metric.type);
@@ -279,7 +328,7 @@ export const ResultsView: React.FC<ResultsViewProps> = ({
                     {hasMask && (
                       <button
                         onClick={() =>
-                          setSelectedMaskMetric(isMaskActive ? null : metric)
+                          handleSelectMask(isMaskActive ? null : metric)
                         }
                         className={`text-[10px] shrink-0 uppercase tracking-wider font-semibold px-2 py-0.5 border ${
                           isMaskActive
@@ -296,6 +345,7 @@ export const ResultsView: React.FC<ResultsViewProps> = ({
             })}
           </div>
 
+          {/* Skincare Routine Callout */}
           <div className="p-6 bg-[#f5e8e4] border border-[#eadbd7] flex flex-col sm:flex-row items-center justify-between gap-4">
             <div>
               <b className="font-serif text-lg font-normal text-[#3a1f2e] block">
