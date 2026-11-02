@@ -3,7 +3,7 @@ import { ShieldCheck } from 'lucide-react';
 
 interface FooterProps {
   onOpenPrivacy: () => void;
-  onNavigate: (page: 'home' | 'scan' | 'passport') => void;
+  onNavigate: (page: 'home' | 'scan' | 'passport' | 'compare') => void;
 }
 
 export const Footer: React.FC<FooterProps> = ({ onOpenPrivacy, onNavigate }) => {
@@ -44,6 +44,12 @@ export const Footer: React.FC<FooterProps> = ({ onOpenPrivacy, onNavigate }) => 
             className="hover:text-[#3a1f2e] transition-colors"
           >
             Skin Passport
+          </button>
+          <button
+            onClick={() => onNavigate('compare')}
+            className="hover:text-[#3a1f2e] transition-colors"
+          >
+            Skin Lab
           </button>
           <button
             onClick={onOpenPrivacy}

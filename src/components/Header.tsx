@@ -1,5 +1,5 @@
 import React from 'react';
-import { ArrowRight, BookOpen, Sparkles, Shield, GitCompare, User } from 'lucide-react';
+import { ArrowRight, BookOpen, Sparkles, Shield, User, Compass } from 'lucide-react';
 
 interface HeaderProps {
   currentPage: 'home' | 'scan' | 'passport' | 'compare';
@@ -78,11 +78,15 @@ export const Header: React.FC<HeaderProps> = ({
               : 'hover:text-[#3a1f2e]'
           }`}
         >
-          <GitCompare size={13} />
-          <span>Compare</span>
-          {passportCount < 2 && (
+          <Compass size={13} className="text-[#8e3b5a]" />
+          <span>Skin Lab</span>
+          {passportCount >= 2 ? (
+            <span className="text-[9px] font-mono text-[#386733] bg-[#e2ede0] px-1.5 py-0.5 border border-[#c0dac0]">
+              Compare Ready
+            </span>
+          ) : (
             <span className="text-[9px] font-mono text-[#8e3b5a] bg-[#fbf2ef] px-1.5 py-0.5 border border-[#eadbd7]">
-              Demo
+              Habits
             </span>
           )}
         </button>

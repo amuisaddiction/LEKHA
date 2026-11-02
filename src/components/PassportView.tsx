@@ -2,11 +2,11 @@ import React, { useState } from 'react';
 import {
   ArrowRight,
   Trash2,
-  GitCompare,
   Calendar,
   ExternalLink,
   Shield,
   Sparkles,
+  Compass,
 } from 'lucide-react';
 import type { SkinScanRecord } from '../types/skin';
 import { getMetricDefinition } from '../utils/metricDefinitions';
@@ -129,8 +129,8 @@ export const PassportView: React.FC<PassportViewProps> = ({
             onClick={onNavigateToCompare}
             className="inline-flex items-center gap-1.5 border border-[#3a1f2e] bg-[#3a1f2e] text-white px-4 py-2 text-xs uppercase tracking-wider hover:bg-[#8e3b5a] transition-colors"
           >
-            <GitCompare size={13} />
-            <span>{records.length >= 2 ? 'Compare Scans' : 'Compare Studio'}</span>
+            <Compass size={13} />
+            <span>{records.length >= 2 ? 'Skin Lab Comparison' : 'Open Skin Lab'}</span>
           </button>
 
           <button onClick={onNavigateToScan} className="dark py-2 px-4 text-xs uppercase tracking-wider">

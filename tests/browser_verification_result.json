@@ -1,0 +1,148 @@
+{
+  "productionUrl": "https://lekha-xi.vercel.app",
+  "verifiedCommit": "822d91b",
+  "browserEngine": "Google Chrome Headless (CDP)",
+  "timestamp": "2026-11-02T19:32:29.589Z",
+  "sections": {
+    "Landing Hero": {
+      "status": "PASS",
+      "headline": "Your skin has a story. Let’s keep track.",
+      "ctaButtons": [
+        "Start with a scan",
+        "EXPLORE SKIN PASSPORT"
+      ],
+      "customIllustrationPresent": true
+    },
+    "Eight Skin Concern Cards": {
+      "status": "PASS",
+      "count": 8,
+      "cards": [
+        {
+          "title": "Skin Texture",
+          "category": "SURFACE UNIFORMITY"
+        },
+        {
+          "title": "Pore Appearance",
+          "category": "FOLLICULAR REFINEMENT"
+        },
+        {
+          "title": "Fine Lines & Wrinkles",
+          "category": "ELASTICITY & CREASING"
+        },
+        {
+          "title": "Blemish Clarity",
+          "category": "INFLAMMATORY SIGNALS"
+        },
+        {
+          "title": "Vascular Redness",
+          "category": "MICRO-CIRCULATION"
+        },
+        {
+          "title": "Age Spots & Pigment",
+          "category": "MELANIN DISTRIBUTION"
+        },
+        {
+          "title": "Sebum & Oil Balance",
+          "category": "LIPID REGULATION"
+        },
+        {
+          "title": "Hydration Retention",
+          "category": "STRATUM CORNEUM PLUMPNESS"
+        }
+      ],
+      "drawerInteractive": true,
+      "activeDrawerTitle": ""
+    },
+    "Plum Editorial Campaign": {
+      "status": "PASS",
+      "headline": "Formulated for reality. Documented with precision.",
+      "pillars": [
+        "Objective Vision",
+        "Dual Scores",
+        "Private Vault"
+      ],
+      "editorialPortraitVerified": true
+    },
+    "Skincare Rituals AM/PM": {
+      "status": "PASS",
+      "amProducts": [
+        "Gentle Purifying Gel Cleanser",
+        "Antioxidant Defense Serum",
+        "Physiological Barrier Moisturizer",
+        "Broad-Spectrum Mineral Sunscreen SPF 50+"
+      ],
+      "pmProducts": [
+        "Balm-to-Milk Double Cleanser",
+        "Cellular Turnover & Renewal Serum",
+        "Restorative Night Cream Jar",
+        "Occlusive Barrier Recovery Seal"
+      ],
+      "interactiveToggleWorking": true,
+      "nightCreamPresent": true
+    },
+    "Skin Passport": {
+      "status": "PASS",
+      "title": "Skin Passport.",
+      "demoWalkthroughNoticeVisible": true,
+      "timelineCardsRendered": 2,
+      "timelineDates": [
+        "OCT 28, 2026 · 09:15 AM",
+        "OCT 1, 2026 · 10:30 AM"
+      ],
+      "metricChipsCount": 12
+    },
+    "Compare Studio": {
+      "status": "PASS",
+      "title": "Skin Comparison.",
+      "demoWalkthroughNoticeVisible": true,
+      "dualPortraitsVerified": true,
+      "confidenceCardPresent": true,
+      "confidenceCardSnippet": "Comparison Confidence Rating HIGH SCIENTIFIC CONFIDENCE LIGHTING MATCH Consistent RESOLUTION MATCH C",
+      "parameterShiftsCount": 2
+    },
+    "Mobile Responsiveness (390px)": {
+      "status": "PASS",
+      "viewportWidth": 390,
+      "viewportHeight": 844,
+      "horizontalOverflowDetected": false
+    }
+  },
+  "screenshots": [
+    {
+      "file": "live_01_hero_desktop.png",
+      "size": 122121
+    },
+    {
+      "file": "live_02_skin_concerns.png",
+      "size": 725253
+    },
+    {
+      "file": "live_03_plum_campaign.png",
+      "size": 274802
+    },
+    {
+      "file": "live_04_skincare_rituals_am.png",
+      "size": 396232
+    },
+    {
+      "file": "live_05_skincare_rituals_pm.png",
+      "size": 346888
+    },
+    {
+      "file": "live_06_passport_timeline.png",
+      "size": 140680
+    },
+    {
+      "file": "live_07_compare_studio.png",
+      "size": 336185
+    },
+    {
+      "file": "live_08_mobile_390px_landing.png",
+      "size": 60544
+    },
+    {
+      "file": "live_09_mobile_390px_concerns.png",
+      "size": 169505
+    }
+  ]
+}

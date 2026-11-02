@@ -18,7 +18,8 @@ Most modern skincare applications provide an instant face scan, output arbitrary
 - Clear distinction between consumer-calibrated **UI Scores** and continuous **Raw Model Outputs**.
 - Interactive **Personal Skin Profile** connecting your skin type, behaviors, and sensitivities to all recommendations.
 - A persistent, browser-local **Skin Passport** that documents your skin timeline.
-- Side-by-side historical comparison evaluated by a **Comparison Confidence** engine that accounts for lighting and camera differences.
+- **LEKHA Skin Lab:** An interactive dermatological workbench featuring Skin Focus Explorer, Routine Builder with ingredient compatibility cautions, a 5-parameter daily Skin Diary, 28-Day habit goals, and authentic biometric scan comparison.
+- Side-by-side historical comparison evaluated by a **Comparison Confidence** engine that accounts for lighting, camera differences, and subject consistency.
 - Responsible, metric-derived **Interactive AM/PM Skincare Protocol** with daily progress tracking.
 - Zero cloud storage of user face images with 1-click complete local data purge.
 
@@ -54,7 +55,7 @@ Most modern skincare applications provide an instant face scan, output arbitrary
 3. **Certified Results Experience:** Displays verified metrics with clear categorization (Texture & Pores, Tone & Clarity, Hydration & Balance, Signs of Aging). Supports toggling visual detection mask overlays directly on the portrait.
 4. **Interactive Personal Skin Profile:** Guided intake capturing user skin type (Oily, Dry, Combination, Normal, Sensitive, Unsure), daily behaviors, primary concerns, and known ingredient sensitivities (alcohol, retinoids, fragrance).
 5. **Persistent Skin Passport:** Saves dated scan records, scores, timestamps, and thumbnails locally within the user's browser.
-6. **Scan Comparison & Comparison Confidence:** Select any two historical scans to inspect metric deltas. If lighting exposure or camera resolution differ significantly, the Comparison Confidence engine cautions the user that differences may stem from photography conditions.
+6. **LEKHA Skin Lab & Honest Comparison:** Interactive habit workbench featuring Skin Focus Explorer (8 macro concerns & mirror observation cues), Routine Builder (with ingredient overlap & compatibility warnings), Skin Diary (5-parameter daily self-checkins with CSV/JSON export), 28-Day Habit Goals (activity-based cycle tracking), and honest Scan Comparison unlocking when 2+ genuine scans are recorded (with face consistency safeguards).
 7. **Interactive AM/PM Skincare Protocol Tracker:** Checkable morning and evening steps with live daily completion progress bar, key active ingredient spotlights, and explicit links to triggering metrics and user profile traits.
 8. **Privacy & Data Sovereignty:** Zero persistent cloud database storage of face images; 1-click complete local data purge.
 

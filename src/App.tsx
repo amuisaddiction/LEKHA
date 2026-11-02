@@ -4,7 +4,7 @@ import { ApproachSection } from './components/ApproachSection';
 import { ScanWorkflow } from './components/ScanWorkflow';
 import { ResultsView } from './components/ResultsView';
 import { PassportView } from './components/PassportView';
-import { ComparisonView } from './components/ComparisonView';
+import { SkinLabView } from './components/SkinLabView';
 import { SkincareRoutineModal } from './components/SkincareRoutineModal';
 import { SkinProfileModal } from './components/SkinProfileModal';
 import { PrivacyModal } from './components/PrivacyModal';
@@ -151,9 +151,10 @@ export default function App() {
         )}
 
         {currentPage === 'compare' && (
-          <ComparisonView
+          <SkinLabView
             records={passportRecords}
-            onBackToPassport={() => handleNavigate('passport')}
+            onNavigateToScan={() => handleNavigate('scan')}
+            onNavigateToPassport={() => handleNavigate('passport')}
             onOpenRecord={handleOpenRecord}
           />
         )}
