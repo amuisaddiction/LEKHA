@@ -17,11 +17,11 @@ import {
 import type { SkinScanRecord } from './types/skin';
 
 export default function App() {
-  const [currentPage, setCurrentPage] = useState<'home' | 'scan' | 'results' | 'passport' | 'compare'>('home');
+  const getInitialPage = (): 'home' | 'scan' | 'results' | 'passport' | 'compare' => { if (typeof window === 'undefined') return 'home'; const hash = window.location.hash.replace('#', '').toLowerCase(); if (['scan', 'passport', 'compare'].includes(hash)) return hash as any; return 'home'; }; const [currentPage, setCurrentPage] = useState<'home' | 'scan' | 'results' | 'passport' | 'compare'>(getInitialPage);
   const [currentResult, setCurrentResult] = useState<SkinScanRecord | null>(null);
   const [passportRecords, setPassportRecords] = useState<SkinScanRecord[]>([]);
   const [isRoutineModalOpen, setIsRoutineModalOpen] = useState(false);
-  const [isPrivacyModalOpen, setIsPrivacyModalOpen] = useState(false);
+  const [isPrivacyModalOpen, setIsPrivacyModalOpen] = useState(() => typeof window !== 'undefined' && window.location.hash === '#privacy');
 
   useEffect(() => {
     const loaded = loadPassportRecords();
@@ -72,7 +72,7 @@ export default function App() {
   };
 
   const handleNavigate = (page: 'home' | 'scan' | 'passport' | 'compare') => {
-    setCurrentPage(page);
+    setCurrentPage(page); if (typeof window !== 'undefined') window.location.hash = page === 'home' ? '' : page;
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
